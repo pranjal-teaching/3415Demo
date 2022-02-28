@@ -43,8 +43,32 @@ def get_actors_for_movie_by_title(title: str) -> list:
         f.title = 'FARGO GANDHI'
     ORDER BY f.title;
     """
-    pass
+    with connect(host=HOSTNAME, user=USER_NAME, password=PASSWORD) as mysql_connection:
+        # Step 2: Create cursor object
+        with mysql_connection.cursor() as cursor:
+            # Step 3: Execute Query
+            query = f"""SELECT
+                            f.film_id, f.title, fa.actor_id, a.first_name, a.last_name
+                        FROM
+                            sakila.film f
+                                INNER JOIN
+                            sakila.film_actor fa ON f.film_id = fa.film_id
+                                INNER JOIN
+                            sakila.actor a ON fa.actor_id = a.actor_id
+                        WHERE
+                            f.title = '{title}'
+                        ORDER BY f.title;"""
+            cursor.execute(query)
+            # Step 4: Fetch all data returned after query execution
+            all_actors = cursor.fetchall()
+    return all_actors
 
 
 def get_film_names_by_category(self):
     pass
+
+
+actors = get_actors_for_movie_by_title("FARGO GANDHI")
+print()
+for actor in actors:
+    print(actor)
